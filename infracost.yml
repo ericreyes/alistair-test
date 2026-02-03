@@ -1,0 +1,10 @@
+version: 0.1
+
+projects:
+  - path: terraform/environments/prod
+    usage_file: terraform/environments/prod/usage.yml
+    
+  - path: terraform/environments/staging
+    usage_file: terraform/environments/staging/usage.yml
+
+currency: USD
