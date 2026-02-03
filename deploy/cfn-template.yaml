@@ -1,0 +1,45 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Alistair test Lambda and SQS setup
+
+Resources:
+  AlistairQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: alistair-test-queue
+      VisibilityTimeout: 300
+      MessageRetentionPeriod: 345600
+
+  AlistairFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: alistair-test-processor
+      Runtime: python3.11
+      Handler: index.handler
+      Code:
+        ZipFile: |
+          def handler(event, context):
+              print('Processing event:', event)
+              return {'statusCode': 200}
+      Environment:
+        Variables:
+          QUEUE_URL: !Ref AlistairQueue
+      Role: !GetAtt LambdaExecutionRole.Arn
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
+
+Outputs:
+  QueueUrl:
+    Value: !Ref AlistairQueue
+  FunctionArn:
+    Value: !GetAtt AlistairFunction.Arn
